@@ -49,7 +49,6 @@ public class RemoteService extends AccessibilityService{
      *
      */
     RemoteProfile profile;
-    private boolean isCanClick=true;
     private boolean isCanClickMoRong=true;
     private GestureResultCallback gestureResultCallback;
 
@@ -69,6 +68,12 @@ public class RemoteService extends AccessibilityService{
         HandlerThread handlerThread = new HandlerThread("auto-handler");
         handlerThread.start();
         mHandler = new Handler(handlerThread.getLooper());
+
+        Intent i = new Intent(Intent.ACTION_MAIN);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        i.setPackage("com.android.chrome");
+        startActivity(i);
 //
 //        layoutInflater= (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 //        final View view= layoutInflater.inflate(R.layout.overlay,null);
@@ -212,6 +217,9 @@ public class RemoteService extends AccessibilityService{
 
     boolean inPrivateMode=false;
     boolean isOpenMoreTab=false;
+    boolean isOpenShowMore =false;
+     boolean isCanClick=true;
+     AccessibilityNodeInfo trangchu =null;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event)
@@ -222,111 +230,229 @@ public class RemoteService extends AccessibilityService{
             if(source.getPackageName().equals("com.android.chrome")){
                 if(source.getChildCount()>0){
                     for (int i = 0; i < source.getChildCount(); i++) {
-                        Rect position =new Rect();
-                        source.getChild(i).getBoundsInScreen(position);
-                        Log.d("nhatnhat", "child1" + source.getChild(i).toString()+"/"+position.centerX()+":"+position.centerY());
-                        if(source.getChild(i).getContentDescription()!=null&&source.getChild(i).getContentDescription().toString().contains("Tùy chọn khác")){
-                            if(!isOpenMoreTab&&isCanClick) {
-                                click(source.getChild(i),200, new GestureResultCallback() {
-                                    @Override
-                                    public void onCompleted(GestureDescription gestureDescription) {
-                                        super.onCompleted(gestureDescription);
-                                        isOpenMoreTab = true;
-                                        isCanClick=true;
-                                    }
-
-                                    @Override
-                                    public void onCancelled(GestureDescription gestureDescription) {
-                                        super.onCancelled(gestureDescription);
-                                        isOpenMoreTab = false;
-                                        isCanClick=true;
-                                    }
-                                });
-                            }
-                        }
-                        if(source.getChild(i).getChildCount()>0){
-                            for (int j = 0; j < source.getChild(i).getChildCount(); j++) {
-
-                                Log.d("nhatnhat", "child2" + source.getChild(i).getChild(j).toString());
-                                if(source.getChild(i).getChild(j).getText()!=null&&source.getChild(i).getChild(j).getText().toString().contains("Tìm kiếm hoặc nhập địa chỉ web")){
-//                                    if(inAnDanhMode) {
-//                                        Bundle arguments = new Bundle();
-//                                        arguments.putCharSequence(
-//                                                AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "Con chó vẹn ");
-//                                        source.getChild(i).getChild(j).performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
+                        if (source.getChild(i) != null) {
+//                        if(source.getChild(i).getContentDescription()!=null&&source.getChild(i).getContentDescription().toString().contains("Tùy chọn khác")){
+//                            if(!isOpenMoreTab&&isCanClick) {
+//
+////                                source.getChild(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+////                                isOpenMoreTab=true;
+//                                click(source.getChild(i),200, new GestureResultCallback() {
+//                                    @Override
+//                                    public void onCompleted(GestureDescription gestureDescription) {
+//                                        super.onCompleted(gestureDescription);
+//                                        Toast.makeText(RemoteService.this, "Mở Moretab thành công", Toast.LENGTH_SHORT).show();
+//
+//                                        isOpenMoreTab = true;
+//                                        isCanClick=true;
 //                                    }
-                                }else if(source.getChild(i).getChild(j).getText()!=null&&source.getChild(i).getChild(j).getText().toString().contains("Tab ẩn danh mới")){
+//
+//                                    @Override
+//                                    public void onCancelled(GestureDescription gestureDescription) {
+//                                        super.onCancelled(gestureDescription);
+//                                        Toast.makeText(RemoteService.this, "Fail to Click", Toast.LENGTH_SHORT).show();
+//                                        isOpenMoreTab = false;
+//                                        isCanClick=true;
+//                                    }
+//                                });
+//                            }
+//                        }
 
+                            if (source.getChild(i).getChildCount() > 0) {
+                                for (int j = 0; j < source.getChild(i).getChildCount(); j++) {
+                                    if (source.getChild(i).getChild(j) != null) {
+
+//                                if(source.getChild(i).getChild(j).getContentDescription()!=null&&source.getChild(i).getChild(j).getContentDescription().toString().contains("Chế độ ẩn danh")){
+//                                    Toast.makeText(this, "Vào chế độ ẩn danh", Toast.LENGTH_SHORT).show();
+//                                    inPrivateMode=true;
+//
+//                                }
+                                        if (source.getChild(i).getChild(j).getContentDescription() != null && source.getChild(i).getChild(j).getContentDescription().toString().contains("http://raboninco.com/1aPeH") && isCanClick && isOpenShowMore) {
+                                            Toast.makeText(this, "Tìm lấy link", Toast.LENGTH_SHORT).show();
+                                            click(source.getChild(i).getChild(j), 200, new GestureResultCallback() {
+                                                @Override
+                                                public void onCompleted(GestureDescription gestureDescription) {
+                                                    super.onCompleted(gestureDescription);
+                                                    isCanClick = true;
+                                                }
+
+                                                @Override
+                                                public void onCancelled(GestureDescription gestureDescription) {
+                                                    super.onCancelled(gestureDescription);
+                                                    isCanClick = true;
+                                                }
+                                            });
+                                        }
+//                                if(source.getChild(i).getChild(j).getText()!=null&&source.getChild(i).getChild(j).getText().toString().contains("Tab ẩn danh mới")){
+//                                        if(isOpenMoreTab&&!inPrivateMode&&isCanClick){
+//                                            Toast.makeText(this, "Click tab ẩn danh", Toast.LENGTH_SHORT).show();
+////                                            source.getChild(i).getChild(j).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+//                                            click(source.getChild(i).getChild(j), 200, new GestureResultCallback() {
+//                                                @Override
+//                                                public void onCompleted(GestureDescription gestureDescription) {
+//                                                    super.onCompleted(gestureDescription);
+//                                                    isCanClick=true;
+//                                                }
+//
+//                                                @Override
+//                                                public void onCancelled(GestureDescription gestureDescription) {
+//                                                    super.onCancelled(gestureDescription);
+//                                                    isCanClick=true;
+//                                                }
+//                                            });
+//                                        }
+//                                }
+                                        if (source.getChild(i).getChild(j).getText() != null && source.getChild(i).getChild(j).getText().toString().contains("Tìm kiếm hoặc nhập địa chỉ web")) {
+//                                    if(inPrivateMode) {
+                                            Bundle arguments = new Bundle();
+                                            arguments.putCharSequence(
+                                                    AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "https://www.youtube.com/watch?v=fU_C-2ONyKU");
+                                            source.getChild(i).getChild(j).performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
+                                            source.getChild(i).getChild(j).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+//                                    }else {
+//                                        Toast.makeText(this, "Không tìm thấy edittext nhập url", Toast.LENGTH_SHORT).show();
+//                                    }
+                                        }
+                                        Log.d("nhatnhat", "child2" + source.getChild(i).getChild(j).toString());
+                                    }
+                                }
+
+
+                            }
+                            if (source.getChild(i).getClassName().equals("android.widget.ListView")) {
+                                Log.d("listview", "onAccessibilityEvent: ");
+                                if (isCanClick) {
+                                    if (source.getChild(i).getChildCount() > 0) {
+                                        click(source.getChild(i).getChild(0), 200, new GestureResultCallback() {
+                                            @Override
+                                            public void onCompleted(GestureDescription gestureDescription) {
+                                                super.onCompleted(gestureDescription);
+                                                isCanClick = true;
+                                            }
+
+                                            @Override
+                                            public void onCancelled(GestureDescription gestureDescription) {
+                                                super.onCancelled(gestureDescription);
+                                                isCanClick = true;
+                                            }
+                                        });
+                                    }
                                 }
                             }
-                        }
-                    }
-                }
 
-                if(source.getText()!=null) {
-                    if (source.getText().equals("Cho phép") || source.getText().equals("Allow") || source.getText().equals("Skip Ad") || source.getText().equals("0 giây")) {
-                        Rect position = new Rect();
-                        source.getBoundsInScreen(position);
-                        Path path = new Path();
-                        path.moveTo(position.centerX(), position.centerY());
-                        GestureDescription.Builder builder = new GestureDescription.Builder();
-                        builder.addStroke(new GestureDescription.StrokeDescription(path, 1000, 1000));
-                        final GestureDescription gestureDescription = builder.build();
-                        dispatchGesture(gestureDescription, new GestureResultCallback() {
-                            @Override
-                            public void onCompleted(GestureDescription gestureDescription) {
-                                super.onCompleted(gestureDescription);
-                                Toast.makeText(RemoteService.this, "Clicked Cho Phép", Toast.LENGTH_SHORT).show();
+                            if (source.getChild(i).getClassName().equals("android.widget.Button")) {
+                                if (source.getChild(i).getText() != null && source.getChild(i).getText().toString().contains("Roblox hack scripts | Roblox Pickaxe Simulator Script Auto Farm") && isCanClick && !isOpenShowMore) {
+                                    click(source.getChild(i), 200, new GestureResultCallback() {
+                                        @Override
+                                        public void onCompleted(GestureDescription gestureDescription) {
+                                            super.onCompleted(gestureDescription);
+                                            isOpenShowMore = true;
+                                            isCanClick = true;
+                                        }
+
+                                        @Override
+                                        public void onCancelled(GestureDescription gestureDescription) {
+                                            super.onCancelled(gestureDescription);
+                                            isCanClick = true;
+                                        }
+                                    });
+                                }
+                                if (source.getChild(i).getText() != null && source.getChild(i).getText().toString().contains("Cho phép") && isCanClick) {
+                                    click(source.getChild(i), 200, new GestureResultCallback() {
+                                        @Override
+                                        public void onCompleted(GestureDescription gestureDescription) {
+                                            super.onCompleted(gestureDescription);
+                                            isCanClick = true;
+                                        }
+
+                                        @Override
+                                        public void onCancelled(GestureDescription gestureDescription) {
+                                            super.onCancelled(gestureDescription);
+                                            isCanClick = true;
+                                        }
+                                    });
+                                }
+
+                            }
+                            if (source.getChild(i).getText() != null && source.getChild(i).getText().toString().contains("Trang chủ")) {
+                                trangchu = source.getChild(i);
                             }
 
-                            @Override
-                            public void onCancelled(GestureDescription gestureDescription) {
-                                super.onCancelled(gestureDescription);
-                                Toast.makeText(RemoteService.this, "Fail" + gestureDescription.toString(), Toast.LENGTH_SHORT).show();
+
+                            if (source.getChild(i).getText() != null && source.getChild(i).getText().toString().contains("robloxhackscripts.com") && isCanClick) {
+                                if (trangchu != null) {
+                                    click(trangchu, 200, new GestureResultCallback() {
+                                        @Override
+                                        public void onCompleted(GestureDescription gestureDescription) {
+                                            super.onCompleted(gestureDescription);
+                                            isCanClick = true;
+                                        }
+
+                                        @Override
+                                        public void onCancelled(GestureDescription gestureDescription) {
+                                            super.onCancelled(gestureDescription);
+                                            isCanClick = true;
+                                        }
+                                    });
+                                }
                             }
-                        }, null);
-                    }
-                    for (int i = 0; i < source.getChildCount(); i++) {
-                        if (source.getChild(i) != null && source.getChild(i).getText() != null) {
-                            if (source.getChild(i).getText().equals("Cho phép") || source.getChild(i).getText().equals("Allow") || source.getChild(i).getText().equals("Skip Ad") || source.getChild(i).getText().equals("0 giây")) {
-                                Rect position = new Rect();
-                                source.getChild(i).getBoundsInScreen(position);
-                                Path path = new Path();
-                                path.moveTo(position.centerX(), position.centerY());
-                                GestureDescription.Builder builder = new GestureDescription.Builder();
-                                builder.addStroke(new GestureDescription.StrokeDescription(path, 1000, 1000));
-                                final GestureDescription gestureDescription = builder.build();
-                                dispatchGesture(gestureDescription, new GestureResultCallback() {
+
+
+                            if (source.getChild(i).getContentDescription() != null && source.getChild(i).getContentDescription().toString().contains("Skip Ad") && isCanClick) {
+                                click(source.getChild(i), 200, new GestureResultCallback() {
                                     @Override
                                     public void onCompleted(GestureDescription gestureDescription) {
                                         super.onCompleted(gestureDescription);
-                                        Toast.makeText(RemoteService.this, "Clicked Cho Phép", Toast.LENGTH_SHORT).show();
+                                        isCanClick = true;
                                     }
 
                                     @Override
                                     public void onCancelled(GestureDescription gestureDescription) {
                                         super.onCancelled(gestureDescription);
-                                        Toast.makeText(RemoteService.this, "Fail" + gestureDescription.toString(), Toast.LENGTH_SHORT).show();
+                                        isCanClick = true;
                                     }
-                                }, null);
+                                });
+
                             }
-                            Log.d("nhatnhat", "onAccessibilityEvent: " + source.getChild(i).getText());
+                            if (source.getChild(i).getText() != null && source.getChild(i).getText().toString().contains("Skip Ad") && isCanClick) {
+                                click(source.getChild(i), 200, new GestureResultCallback() {
+                                    @Override
+                                    public void onCompleted(GestureDescription gestureDescription) {
+                                        super.onCompleted(gestureDescription);
+                                        isCanClick = true;
+                                    }
+
+                                    @Override
+                                    public void onCancelled(GestureDescription gestureDescription) {
+                                        super.onCancelled(gestureDescription);
+                                        isCanClick = true;
+                                    }
+                                });
+
+                            }
+
                         }
                     }
                 }
+
 
             }else {
-                Rect position2 = new Rect();
-                source.getBoundsInScreen(position2);
-                Log.d("nonchrome", "onAccessibilityEvent: "+source.getText()+"/"+position2.centerX()+":"+position2.centerY());
-                for (int i = 0; i < source.getChildCount(); i++) {
-                    if (source.getChild(i) != null && source.getChild(i).getText() != null) {
-                        if (source.getChild(i).getText().equals("Cho phép") || source.getChild(i).getText().equals("Allow") || source.getChild(i).getText().equals("Skip Ad") || source.getChild(i).getText().equals("0 giây")) {
 
-                        }
-                        Log.d("nhatnhat", "onAccessibilityEvent: " + source.getChild(i).getText());
-                    }
-                }
+                 inPrivateMode=false;
+                 isOpenMoreTab=false;
+                 isOpenShowMore =false;
+                 isCanClick=true;
+
+//                Rect position2 = new Rect();
+//                source.getBoundsInScreen(position2);
+//                Log.d("nonchrome", "onAccessibilityEvent: "+source.getText()+"/"+position2.centerX()+":"+position2.centerY());
+//                for (int i = 0; i < source.getChildCount(); i++) {
+//                    if (source.getChild(i) != null && source.getChild(i).getText() != null) {
+//                        if (source.getChild(i).getText().equals("Cho phép") || source.getChild(i).getText().equals("Allow") || source.getChild(i).getText().equals("Skip Ad") || source.getChild(i).getText().equals("0 giây")) {
+//
+//                        }
+//                        Log.d("nhatnhat", "onAccessibilityEvent: " + source.getChild(i).getText());
+//                    }
+//                }
 
             }
         }
@@ -371,8 +497,10 @@ public class RemoteService extends AccessibilityService{
         child.getBoundsInScreen(position);
         final Path path = new Path();
         path.moveTo(position.centerX(), position.centerY());
-        if(path.isEmpty())
+        if(position.centerX()<0||position.centerY()<0||path.isEmpty()){
+            gestureResultCallback.onCancelled(null);
             return;
+        }
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
