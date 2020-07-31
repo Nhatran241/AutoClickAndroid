@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.debug.kiemtienuongcafe.process.CaptureManager;
 import com.debug.kiemtienuongcafe.remote.RemoteService;
 import com.debug.kiemtienuongcafe.server.ClientManager;
 import com.nhatran241.simplepermission.PermissionManager;
@@ -37,18 +39,35 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity implements PermissionManager.IGrantPermissionListener{
 
     private static final int REQUESTACCESSIBILITY = 2222;
+    private static final int REQUESTCAPTURE = 2333;
+    private CaptureManager captureManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ClientManager.getInstance().init(this);
         if(RemoteService.isConnected){
             PermissionManager.getInstance().GrantPermission(this, PermissionManager.PermissionType.OVERLAY,this);
         }else {
             Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
             startActivityForResult(intent,REQUESTACCESSIBILITY);
         }
+//            captureManager = new CaptureManager();
+//            captureManager.requestScreenshotPermission(this, REQUESTCAPTURE);
+//            captureManager.setOnGrantedPermissionListener(new CaptureManager.onGrantedPermissionListener() {
+//                @Override
+//                public void onResult(boolean isGranted) {
+//                    if (isGranted) {
+//                        Toast.makeText(MainActivity.this, "camera", Toast.LENGTH_SHORT).show();
+//                            PermissionManager.getInstance().GrantPermission(MainActivity.this, PermissionManager.PermissionType.OVERLAY,MainActivity.this);
+//
+//                    } else {
+//                        captureManager.requestScreenshotPermission(MainActivity.this, REQUESTCAPTURE);
+//                    }
+//                }
+//            });
+
+
 
     }
 
@@ -63,19 +82,21 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         PermissionManager.getInstance().onActivityForResult(this,requestCode,resultCode,data);
-        if(requestCode==REQUESTACCESSIBILITY){
-            if(RemoteService.isConnected){
-                PermissionManager.getInstance().GrantPermission(this, PermissionManager.PermissionType.OVERLAY,this);
-            }else {
-                Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                startActivityForResult(intent,REQUESTACCESSIBILITY);
-            }
+        if(requestCode==REQUESTCAPTURE){
+            captureManager.onActivityResult(resultCode, data);
         }
+
     }
 
     @Override
     public void OnGrantPermissionSuccess(PermissionManager.PermissionType permissionType) {
-        Toast.makeText(this, "ádasd", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, ""+RemoteService.isConnected, Toast.LENGTH_SHORT).show();
+        if(RemoteService.isConnected){
+            PermissionManager.getInstance().GrantPermission(this, PermissionManager.PermissionType.OVERLAY,this);
+        }else {
+            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivityForResult(intent,REQUESTACCESSIBILITY);
+        }
 
     }
 

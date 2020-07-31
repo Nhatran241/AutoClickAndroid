@@ -36,4 +36,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.10.2'
     implementation 'com.google.firebase:firebase-firestore:21.5.0'
     implementation 'com.github.Nhatran241:simplepermission:1.0.1'
+
+
+    implementation 'com.google.android.gms:play-services-mlkit-text-recognition:16.1.0'
 }
